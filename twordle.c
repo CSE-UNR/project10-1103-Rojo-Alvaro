@@ -11,6 +11,9 @@ void getGuess(char board[][6], int guessNumber);
 int isLetter(char ch);
 int stringLength(char str[]);
 void displayBoard(char word[], char board[][6], int numGuesses);
+void displayOneGuess(char word[], char guess[]);
+char toLowercase(char letter);
+char toUppercase(char letter);
 int letterInWord(char word[], char letter);
 int winCondition(char word[], char guess[]);
 
@@ -38,9 +41,6 @@ int main(){
 	
 	fclose(readfp);
 	
-//	for (int i = 0; i < 5; i++){
-//		board[0][i] = word[i];
-//	}
 	while (guessNumber < 6 && won == 0){
 	
 	
@@ -75,7 +75,7 @@ int getWord(FILE* readfp, char word[]){
 	
 	while ( i < 5 && fscanf(readfp, "%c", &letter) == 1){
 		if (letter != '\n' && letter != ' '){
-			word[i] = letter;
+			word[i] = toLowercase(letter);
 			i++;
 		}
 	}
@@ -117,10 +117,20 @@ void getGuess(char board[][6], int guessNumber){
 	}
 			
 	for (i = 0; i < 5; i++){
-		board[guessNumber][i] = input[i];	
+		board[guessNumber][i] = toLowercase(input[i]);	
 	}
 		
 		board[guessNumber][5] = '\0';
+}
+
+char toLowercase(char letter){
+
+	if (letter >= 'A' && letter <= 'Z'){
+		return letter + 32;
+	}
+	else{
+		return letter;
+	}
 }
 
 int isLetter(char ch){
@@ -148,31 +158,66 @@ int stringLength(char str[]){
 void displayBoard(char word[], char board[][6], int numGuesses){
 
 	int row;
-	int col;
 	
 	for (row = 0; row < numGuesses; row++){
+		displayOneGuess(word, board[row]);
+	}
+}
+
+void displayOneGuess(char word[], char guess[]){
+	
+	int result[5] = {0,0,0,0,0};
+	int used[5] = {0,0,0,0,0};
+	int i;
+	int j;
+	
+	for (i = 0; i < 5; i++){
+		if(guess[i] == word[i]){
 		
-		for (col = 0; col < 5; col++){
-			if(board[row][col] == word[col]){
-				printf("%c", board[row][col] -32);
-			}
-			else{
-			printf("%c", board[row][col]);
+			result[i] = 2;
+			used[i] = 1;
+		}
+	}
+	for (i = 0; i < 5; i++){
+		if (result[i] == 0){
+			for (j = 0; j < 5; j++){
+				if (used[j] == 0 && guess[i] == word[j]){
+					result[i] = 1;
+					used[j] = 1;
+					j = 5;
+				}
 			}
 		}
-		
-		printf("\n");
-		
-		for (col = 0; col < 5; col++){
-			if (board[row][col] != word [col] && letterInWord(word, board[row][col])){
-				printf("^");
-			}
-			else{
-				printf(" ");
-			}
+	}
+	for (i = 0; i < 5; i++){
+		if (result[i] == 2){
+			printf("%c", toUppercase(guess[i]));
 		}
-		
-		printf("\n");
+		else{
+			printf("%c", guess[i]);
+		}
+	}
+	
+	printf("\n");
+	
+	for (i = 0; i < 5; i++){
+		if (result[i] == 1){
+			printf("^");
+		}
+		else{
+			printf(" ");
+		}
+	}
+	printf("\n");
+}
+
+char toUppercase(char letter){
+
+	if (letter >= 'a' && letter <= 'z'){
+		return letter -32;
+	}
+	else{
+		return letter;
 	}
 }
 
